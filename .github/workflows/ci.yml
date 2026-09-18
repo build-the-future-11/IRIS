@@ -8,22 +8,45 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: iris-research-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
 jobs:
   baselines:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout exact source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          persist-credentials: false
+
+      - name: Verify exact source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test -z "$(git status --porcelain)"
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: "3.11"
           cache: pip
-      - name: Install
+
+      - name: Install project and tests
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install "numpy>=1.24" "pytest>=8"
+          python -m pip install ".[test]"
+          python -m pip check
+
       - name: Test
         run: pytest -q
+
       - name: Development-only smoke
         run: |
           python run_dev_baselines.py --experiment-id 31 --scenario clean --output out/clean.json
@@ -31,6 +54,7 @@ jobs:
           python run_dev_baselines.py --experiment-id 33 --scenario persistent_shift --output out/shift.json
           python run_dev_baselines.py --experiment-id 34 --scenario false_open --output out/false_open.json
           python run_dev_baselines.py --experiment-id 35 --scenario mixed --output out/mixed.json
+
       - name: Prove protected family stays closed
         run: |
           if python run_dev_baselines.py --experiment-id 1000 --scenario clean --output out/forbidden.json; then

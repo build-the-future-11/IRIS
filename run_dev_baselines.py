@@ -6,11 +6,13 @@ from iris_baselines import LinearGaussianModel, RunConfig, run_development, writ
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run IRIS development-only B0/B1 baselines")
+    parser = argparse.ArgumentParser(description="Run IRIS development-only B0-B3 robust baselines")
     parser.add_argument("--experiment-id", type=int, required=True)
     parser.add_argument("--scenario", choices=["clean", "additive_outlier", "persistent_shift", "false_open", "mixed"], required=True)
     parser.add_argument("--length", type=int, default=200)
-    parser.add_argument("--huber-c", type=float, default=1.5)
+    parser.add_argument("--huber-c", type=float, default=1.5, help="Historical B1 standardized-residual Huber threshold")
+    parser.add_argument("--ao-h", type=float, default=2.0, help="B2 RobKF AO state-correction clip threshold")
+    parser.add_argument("--io-h", type=float, default=2.0, help="B3 RobKF IO residual-component clip threshold")
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
 
@@ -19,6 +21,8 @@ def main() -> int:
         scenario=args.scenario,
         length=args.length,
         huber_c=args.huber_c,
+        ao_h=args.ao_h,
+        io_h=args.io_h,
     )
     result = run_development(cfg, LinearGaussianModel())
     write_result(result, args.output)

@@ -242,6 +242,9 @@ def iorkf_huber_sequence(
     if h <= 0:
         raise ValueError("h must be > 0")
 
+    if model.observation == 0:
+        raise ValueError("observation must be non-zero for the scalar IO-robust baseline")
+
     means = np.zeros_like(observations)
     variances = np.zeros_like(observations)
     innovations = np.zeros_like(observations)

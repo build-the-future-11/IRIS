@@ -35,8 +35,6 @@ class LinearGaussianModel:
     def validate(self) -> None:
         if self.process_var <= 0 or self.observation_var <= 0 or self.initial_var <= 0:
             raise ValueError("All variances must be strictly positive")
-        if self.observation == 0:
-            raise ValueError("observation must be non-zero for the scalar IO-robust baseline")
 
 
 @dataclass(frozen=True)
@@ -189,7 +187,6 @@ def aorkf_huber_sequence(
         raise ValueError("observations must be a non-empty 1D array")
     if h <= 0:
         raise ValueError("h must be > 0")
-
     means = np.zeros_like(observations)
     variances = np.zeros_like(observations)
     innovations = np.zeros_like(observations)

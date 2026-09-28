@@ -103,3 +103,15 @@ def test_result_manifest_is_development_only_and_complete():
     for metrics in result["results"].values():
         assert set(metrics) == {"rmse", "mae", "max_abs_error", "clipped_fraction"}
         assert all(np.isfinite(v) for v in metrics.values())
+
+
+def test_zero_observation_map_is_rejected_only_by_io_baseline():
+    obs = np.array([0.0, 0.1, -0.2], dtype=float)
+    model = LinearGaussianModel(observation=0.0)
+
+    # B0/B1/B2 do not require C^{-1}; preserve their prior model domain.
+    filter_sequence(obs, model)
+    aorkf_huber_sequence(obs, model, h=2.0)
+
+    with pytest.raises(ValueError, match="non-zero"):
+        iorkf_huber_sequence(obs, model, h=2.0)

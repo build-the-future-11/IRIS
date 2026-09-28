@@ -13,6 +13,15 @@ import numpy as np
 
 PROTECTED_IDS = set(range(1000, 1030))
 
+ROBKF_REFERENCE = {
+    "repository": "Fisch-Alex/Robkf",
+    "commit": "0c4287545034bace38b1e8fb795726add61032b5",
+    "ao_wrapper": "R/AORKF_huber.R",
+    "ao_update": "src/aorkf_huber_matrix.cpp",
+    "io_wrapper": "R/IORKF_huber.R",
+    "io_update": "src/iorkf_huber_matrix.cpp",
+}
+
 
 @dataclass(frozen=True)
 class LinearGaussianModel:
@@ -34,6 +43,8 @@ class RunConfig:
     scenario: str
     length: int = 200
     huber_c: float = 1.5
+    ao_h: float = 2.0
+    io_h: float = 2.0
 
     def validate(self) -> None:
         if self.experiment_id in PROTECTED_IDS:
@@ -42,6 +53,10 @@ class RunConfig:
             raise ValueError("length must be >= 4")
         if self.huber_c <= 0:
             raise ValueError("huber_c must be > 0")
+        if self.ao_h <= 0:
+            raise ValueError("ao_h must be > 0")
+        if self.io_h <= 0:
+            raise ValueError("io_h must be > 0")
         if self.scenario not in {"clean", "additive_outlier", "persistent_shift", "false_open", "mixed"}:
             raise ValueError(f"Unknown scenario: {self.scenario}")
 
@@ -74,7 +89,41 @@ def _huber_weight(z: float, c: float) -> float:
     return 1.0 if az <= c else c / az
 
 
-def filter_sequence(observations: np.ndarray, model: LinearGaussianModel, *, huber_c: float | None = None) -> dict[str, np.ndarray]:
+def _clip_scalar(value: float, threshold: float) -> tuple[float, float]:
+    """Scalar form of RobKF's Euclidean-norm clipping.
+
+    Returns (clipped_value, multiplicative_weight). The maintained RobKF
+    implementation clips the norm of the relevant update vector at h.
+    In one dimension, the Euclidean norm is abs(value).
+    """
+    magnitude = abs(value)
+    if magnitude <= threshold or magnitude == 0.0:
+        return value, 1.0
+    weight = threshold / magnitude
+    return value * weight, weight
+
+
+def _kalman_terms(
+    m: float,
+    p: float,
+    obs: float,
+    model: LinearGaussianModel,
+) -> tuple[float, float, float, float]:
+    m_pred = model.transition * m
+    p_pred = model.transition * p * model.transition + model.process_var
+    innovation = obs - model.observation * m_pred
+    s = model.observation * p_pred * model.observation + model.observation_var
+    gain = p_pred * model.observation / s
+    return m_pred, p_pred, innovation, gain
+
+
+def filter_sequence(
+    observations: np.ndarray,
+    model: LinearGaussianModel,
+    *,
+    huber_c: float | None = None,
+) -> dict[str, np.ndarray]:
+    """Classical B0 filter, or the historical IRIS B1 residual-Huber control."""
     model.validate()
     observations = np.asarray(observations, dtype=float)
     if observations.ndim != 1 or observations.size == 0:
@@ -91,16 +140,13 @@ def filter_sequence(observations: np.ndarray, model: LinearGaussianModel, *, hub
     m = model.initial_mean
     p = model.initial_var
     for t, obs in enumerate(observations):
-        m_pred = model.transition * m
-        p_pred = model.transition * p * model.transition + model.process_var
-        innovation = obs - model.observation * m_pred
+        m_pred, p_pred, innovation, gain = _kalman_terms(m, p, float(obs), model)
         s = model.observation * p_pred * model.observation + model.observation_var
         z = innovation / math.sqrt(s)
         weight = 1.0 if huber_c is None else _huber_weight(z, huber_c)
         effective_innovation = weight * innovation
-        k = p_pred * model.observation / s
-        m = m_pred + k * effective_innovation
-        p = (1.0 - k * model.observation) * p_pred
+        m = m_pred + gain * effective_innovation
+        p = (1.0 - gain * model.observation) * p_pred
 
         means[t] = m
         variances[t] = p
@@ -113,6 +159,118 @@ def filter_sequence(observations: np.ndarray, model: LinearGaussianModel, *, hub
         "variance": variances,
         "innovation": innovations,
         "standardized_innovation": standardized,
+        "robust_weight": weights,
+    }
+
+
+def aorkf_huber_sequence(
+    observations: np.ndarray,
+    model: LinearGaussianModel,
+    *,
+    h: float = 2.0,
+) -> dict[str, np.ndarray]:
+    """B2: scalar AO-robust Huber Kalman update matching maintained RobKF.
+
+    RobKF AORKF_huber computes the ordinary Kalman correction K * innovation
+    and clips the Euclidean norm of that *state correction* at h before
+    applying it. The covariance update remains the ordinary Kalman covariance
+    update. This is intentionally distinct from B1, which Huber-weights the
+    standardized observation residual before multiplying by K.
+
+    Source pin:
+      Fisch-Alex/Robkf@0c4287545034bace38b1e8fb795726add61032b5
+      src/aorkf_huber_matrix.cpp
+    """
+    model.validate()
+    observations = np.asarray(observations, dtype=float)
+    if observations.ndim != 1 or observations.size == 0:
+        raise ValueError("observations must be a non-empty 1D array")
+    if h <= 0:
+        raise ValueError("h must be > 0")
+    means = np.zeros_like(observations)
+    variances = np.zeros_like(observations)
+    innovations = np.zeros_like(observations)
+    corrections = np.zeros_like(observations)
+    weights = np.ones_like(observations)
+
+    m = model.initial_mean
+    p = model.initial_var
+    for t, obs in enumerate(observations):
+        m_pred, p_pred, innovation, gain = _kalman_terms(m, p, float(obs), model)
+        raw_update = gain * innovation
+        update, weight = _clip_scalar(raw_update, h)
+        m = m_pred + update
+        p = (1.0 - gain * model.observation) * p_pred
+
+        means[t] = m
+        variances[t] = p
+        innovations[t] = innovation
+        corrections[t] = update
+        weights[t] = weight
+
+    return {
+        "mean": means,
+        "variance": variances,
+        "innovation": innovations,
+        "robust_component": corrections,
+        "robust_weight": weights,
+    }
+
+
+def iorkf_huber_sequence(
+    observations: np.ndarray,
+    model: LinearGaussianModel,
+    *,
+    h: float = 2.0,
+) -> dict[str, np.ndarray]:
+    """B3: scalar IO-robust Huber Kalman update matching maintained RobKF.
+
+    RobKF IORKF_huber clips (I - C K) * innovation and then reconstructs
+    the state update as C^{-1} * (innovation - clipped_component). In the
+    scalar IRIS harness C is model.observation, so this translation is exact
+    for the one-dimensional linear-Gaussian model. The covariance update
+    remains the ordinary Kalman covariance update.
+
+    Source pin:
+      Fisch-Alex/Robkf@0c4287545034bace38b1e8fb795726add61032b5
+      src/iorkf_huber_matrix.cpp
+    """
+    model.validate()
+    observations = np.asarray(observations, dtype=float)
+    if observations.ndim != 1 or observations.size == 0:
+        raise ValueError("observations must be a non-empty 1D array")
+    if h <= 0:
+        raise ValueError("h must be > 0")
+
+    if model.observation == 0:
+        raise ValueError("observation must be non-zero for the scalar IO-robust baseline")
+
+    means = np.zeros_like(observations)
+    variances = np.zeros_like(observations)
+    innovations = np.zeros_like(observations)
+    robust_components = np.zeros_like(observations)
+    weights = np.ones_like(observations)
+
+    m = model.initial_mean
+    p = model.initial_var
+    for t, obs in enumerate(observations):
+        m_pred, p_pred, innovation, gain = _kalman_terms(m, p, float(obs), model)
+        raw_component = (1.0 - model.observation * gain) * innovation
+        robust_component, weight = _clip_scalar(raw_component, h)
+        m = m_pred + (innovation - robust_component) / model.observation
+        p = (1.0 - gain * model.observation) * p_pred
+
+        means[t] = m
+        variances[t] = p
+        innovations[t] = innovation
+        robust_components[t] = robust_component
+        weights[t] = weight
+
+    return {
+        "mean": means,
+        "variance": variances,
+        "innovation": innovations,
+        "robust_component": robust_components,
         "robust_weight": weights,
     }
 
@@ -133,6 +291,8 @@ def run_development(config: RunConfig, model: LinearGaussianModel | None = None)
     data = generate_sequence(config, model)
     b0 = filter_sequence(data["observation"], model)
     b1 = filter_sequence(data["observation"], model, huber_c=config.huber_c)
+    b2 = aorkf_huber_sequence(data["observation"], model, h=config.ao_h)
+    b3 = iorkf_huber_sequence(data["observation"], model, h=config.io_h)
     return {
         "evidence_role": "DEVELOPMENT_ONLY",
         "protected_confirmatory_ids": "1000-1029 CLOSED",
@@ -144,9 +304,17 @@ def run_development(config: RunConfig, model: LinearGaussianModel | None = None)
             "numpy": np.__version__,
             "platform": platform.platform(),
         },
+        "baseline_provenance": {
+            "B0_classical": "scalar Kalman filter in this repository",
+            "B1_fixed_huber": "historical IRIS standardized-residual Huber control",
+            "B2_AO_robkf_huber": ROBKF_REFERENCE,
+            "B3_IO_robkf_huber": ROBKF_REFERENCE,
+        },
         "results": {
             "B0_classical": summarize(data["state"], b0["mean"], b0["robust_weight"]),
             "B1_fixed_huber": summarize(data["state"], b1["mean"], b1["robust_weight"]),
+            "B2_AO_robkf_huber": summarize(data["state"], b2["mean"], b2["robust_weight"]),
+            "B3_IO_robkf_huber": summarize(data["state"], b3["mean"], b3["robust_weight"]),
         },
     }
 

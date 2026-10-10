@@ -51,3 +51,19 @@ matrix at development ID 41 and length 32. They are engineering smoke records,
 with all baseline outcomes retained. No hypothesis selection, statistical
 victory margin, confirmatory execution or architecture-superiority claim is
 derived from them.
+
+## 10 October 2026 follow-up: strict replay input
+
+The replay CLI now rejects duplicate object keys at any depth, nonstandard
+NaN/Infinity constants, exponent overflow such as `1e999`, and a non-object
+record before replay begins. This prevents a JSON parser's last-key-wins rule
+from selecting one of two conflicting configuration or experiment identities.
+The success receipt includes the SHA-256 of the exact byte snapshot parsed.
+Inputs remain read-only and the scientific `iris_baselines.py` implementation is
+unchanged, so its five source-bound development records still replay exactly.
+
+Seven new CLI cases failed before the correction; all 113 repository tests now
+pass locally. The five retained scenario files were separately verified through
+the actual CLI, each reporting its original input hash. Duplicate protected IDs
+are rejected before replay; IDs 1000–1029 remain closed. This is parsing and
+traceability validation, not a new filter result or canonical-provenance repair.

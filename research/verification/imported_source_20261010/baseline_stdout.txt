@@ -1,0 +1,101 @@
+FFFF.                                                                    [100%]
+=================================== FAILURES ===================================
+__________ test_changed_source_is_rejected_before_any_generator_call ___________
+
+isolated = (<module '_isolated_iris_source_identity' from '/tmp/pytest-of-root/pytest-429/test_changed_source_is_rejecte0/iris_source_copy.py'>, PosixPath('/tmp/pytest-of-root/pytest-429/test_changed_source_is_rejecte0/iris_source_copy.py'))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb5fbf500e0>
+
+    def test_changed_source_is_rejected_before_any_generator_call(isolated, monkeypatch):
+        module, source = isolated
+        change(source)
+        calls = []
+        original = module.generate_sequence
+    
+        def traced(*args):
+            calls.append(True)
+            return original(*args)
+    
+        monkeypatch.setattr(module, "generate_sequence", traced)
+>       with pytest.raises(ValueError, match="source.*fresh interpreter"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_imported_source_identity.py:49: Failed
+___ test_source_changed_during_execution_cannot_release_a_mislabeled_result ____
+
+isolated = (<module '_isolated_iris_source_identity' from '/tmp/pytest-of-root/pytest-429/test_source_changed_during_exe0/iris_source_copy.py'>, PosixPath('/tmp/pytest-of-root/pytest-429/test_source_changed_during_exe0/iris_source_copy.py'))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb5fbf548f0>
+
+    def test_source_changed_during_execution_cannot_release_a_mislabeled_result(isolated, monkeypatch):
+        module, source = isolated
+        original = module.summarize
+    
+        def changed_summary(*args):
+            result = original(*args)
+            change(source)
+            return result
+    
+        monkeypatch.setattr(module, "summarize", changed_summary)
+>       with pytest.raises(ValueError, match="source.*fresh interpreter"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_imported_source_identity.py:64: Failed
+____ test_same_process_verifier_cannot_certify_relabeling_to_new_file_bytes ____
+
+isolated = (<module '_isolated_iris_source_identity' from '/tmp/pytest-of-root/pytest-429/test_same_process_verifier_can0/iris_source_copy.py'>, PosixPath('/tmp/pytest-of-root/pytest-429/test_same_process_verifier_can0/iris_source_copy.py'))
+
+    def test_same_process_verifier_cannot_certify_relabeling_to_new_file_bytes(isolated):
+        module, source = isolated
+        record = run(module)
+        change(source)
+        record["generator"]["implementation_sha256"] = hashlib.sha256(source.read_bytes()).hexdigest()
+>       with pytest.raises(ValueError, match="source.*fresh interpreter"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_imported_source_identity.py:73: Failed
+_____________ test_missing_source_is_an_explicit_identity_failure ______________
+
+isolated = (<module '_isolated_iris_source_identity' from '/tmp/pytest-of-root/pytest-429/test_missing_source_is_an_expl0/iris_source_copy.py'>, PosixPath('/tmp/pytest-of-root/pytest-429/test_missing_source_is_an_expl0/iris_source_copy.py'))
+
+    def test_missing_source_is_an_explicit_identity_failure(isolated):
+        module, source = isolated
+        source.unlink()
+        with pytest.raises(ValueError, match="source.*fresh interpreter"):
+>           run(module)
+
+tests/test_imported_source_identity.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_imported_source_identity.py:31: in run
+    return module.run_development(module.RunConfig(41, "mixed", length=8))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/tmp/pytest-of-root/pytest-429/test_missing_source_is_an_expl0/iris_source_copy.py:453: in run_development
+    ???
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/tmp/pytest-of-root/pytest-429/test_missing_source_is_an_expl0/iris_source_copy.py')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-root/pytest-429/test_missing_source_is_an_expl0/iris_source_copy.py'
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py:1013: FileNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_imported_source_identity.py::test_changed_source_is_rejected_before_any_generator_call
+FAILED tests/test_imported_source_identity.py::test_source_changed_during_execution_cannot_release_a_mislabeled_result
+FAILED tests/test_imported_source_identity.py::test_same_process_verifier_cannot_certify_relabeling_to_new_file_bytes
+FAILED tests/test_imported_source_identity.py::test_missing_source_is_an_explicit_identity_failure
+4 failed, 1 passed in 0.49s

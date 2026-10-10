@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-W",
+    "error",
+    "tests"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 1.9546722740051337,
+  "source_sha256": {
+    "iris_baselines.py": "1f69ec3bcaabb65022ecbfc804f7d443f6b4ff3b00766bd4e6bece8818723d56",
+    "tests/test_imported_source_identity.py": "5520de37562f43303c2a6283ed43185244d7acfd50f9619ce2f3d9bc856264d2"
+  }
+}

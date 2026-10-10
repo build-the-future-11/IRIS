@@ -16,6 +16,19 @@ import numpy as np
 
 PROTECTED_IDS = set(range(1000, 1030))
 DEVELOPMENT_RECORD_SCHEMA = "iris.scalar_baselines.development.v2"
+_IMPORTED_SOURCE_SHA256 = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+
+
+def _checked_source_identity() -> str:
+    """Refuse to label imported functions with subsequently replaced file bytes."""
+    message = "development source identity changed or is unavailable; use a fresh interpreter"
+    try:
+        current = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    except OSError as exc:
+        raise ValueError(message) from exc
+    if current != _IMPORTED_SOURCE_SHA256:
+        raise ValueError(message)
+    return _IMPORTED_SOURCE_SHA256
 
 
 def _finite_real(value: Any, name: str, *, positive: bool = False) -> None:
@@ -427,6 +440,7 @@ def run_development(
     config: RunConfig, model: LinearGaussianModel | None = None
 ) -> dict[str, Any]:
     config.validate()
+    implementation_sha256 = _checked_source_identity()
     model = model or LinearGaussianModel()
     data = generate_sequence(config, model)
     b0 = filter_sequence(data["observation"], model)
@@ -440,7 +454,7 @@ def run_development(
         "B3_IO_robkf_huber": b3,
     }
     trajectories = {key: value.tolist() for key, value in data.items()}
-    return {
+    result = {
         "schema": DEVELOPMENT_RECORD_SCHEMA,
         "evidence_role": "DEVELOPMENT_ONLY",
         "protected_confirmatory_ids": "1000-1029 CLOSED",
@@ -449,9 +463,7 @@ def run_development(
         "seed": _seed(config.experiment_id),
         "generator": {
             "name": "iris_development_scalar_v1",
-            "implementation_sha256": hashlib.sha256(
-                Path(__file__).read_bytes()
-            ).hexdigest(),
+            "implementation_sha256": implementation_sha256,
             "config_sha256": _digest(
                 {"config": asdict(config), "model": asdict(model)}
             ),
@@ -491,6 +503,8 @@ def run_development(
             ),
         },
     }
+    _checked_source_identity()
+    return result
 
 
 def write_result(result: dict[str, Any], path: str) -> None:
@@ -533,7 +547,7 @@ def verify_development_record(record: dict[str, Any]) -> dict[str, Any]:
     model.validate()
     if (
         record.get("generator", {}).get("implementation_sha256")
-        != hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+        != _checked_source_identity()
     ):
         raise ValueError("development record implementation identity differs")
     expected = run_development(config, model)

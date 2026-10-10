@@ -151,7 +151,27 @@ def _clip_scalar(value: float, threshold: float) -> tuple[float, float]:
     if magnitude <= threshold or magnitude == 0.0:
         return value, 1.0
     weight = threshold / magnitude
-    return value * weight, weight
+    # The ratio can underflow even when the clipped correction is representable.
+    return math.copysign(threshold, value), weight
+
+
+def _product_ratio(left: float, right: float, denominator: float) -> float:
+    """Evaluate left * right / denominator without losing intermediate scale.
+
+    Callers supply finite values and a positive denominator. The significands
+    stay near unity; powers of two are combined exactly before one final scale.
+    A truly unrepresentable result still returns zero or raises explicitly.
+    """
+    left_mantissa, left_exponent = math.frexp(left)
+    right_mantissa, right_exponent = math.frexp(right)
+    denominator_mantissa, denominator_exponent = math.frexp(denominator)
+    try:
+        return math.ldexp(
+            left_mantissa * right_mantissa / denominator_mantissa,
+            left_exponent + right_exponent - denominator_exponent,
+        )
+    except OverflowError as exc:
+        raise ValueError("filter ratio exceeds the finite numeric range") from exc
 
 
 def _kalman_terms(
@@ -169,7 +189,7 @@ def _kalman_terms(
         or s <= 0
     ):
         raise ValueError("Kalman prediction exceeds the finite numeric range")
-    gain = p_pred * model.observation / s
+    gain = _product_ratio(p_pred, model.observation, s)
     if not math.isfinite(gain):
         raise ValueError("Kalman gain exceeds the finite numeric range")
     return m_pred, p_pred, innovation, gain, s
@@ -178,8 +198,9 @@ def _kalman_terms(
 def _posterior_variance(
     p_pred: float, innovation_var: float, model: LinearGaussianModel
 ) -> float:
-    # Algebraically (1 - K*C)*P, without cancellation when K*C rounds to 1.
-    value = p_pred * (model.observation_var / innovation_var)
+    # Algebraically (1 - K*C)*P. Scaled multiplication avoids cancellation
+    # and premature underflow of R/S when P*R/S is still representable.
+    value = _product_ratio(p_pred, model.observation_var, innovation_var)
     if not math.isfinite(value) or value <= 0:
         raise ValueError("posterior variance exceeds the positive finite numeric range")
     return value
@@ -209,7 +230,9 @@ def filter_sequence(
         m_pred, p_pred, innovation, gain, s = _kalman_terms(m, p, float(obs), model)
         z = innovation / math.sqrt(s)
         weight = 1.0 if huber_c is None else _huber_weight(z, huber_c)
-        effective_innovation = weight * innovation
+        effective_innovation = innovation
+        if huber_c is not None and weight < 1.0:
+            effective_innovation = math.copysign(huber_c * math.sqrt(s), innovation)
         m = m_pred + gain * effective_innovation
         p = _posterior_variance(p_pred, s, model)
         if not math.isfinite(m) or not math.isfinite(z):
@@ -322,7 +345,7 @@ def iorkf_huber_sequence(
     p = model.initial_var
     for t, obs in enumerate(observations):
         m_pred, p_pred, innovation, gain, s = _kalman_terms(m, p, float(obs), model)
-        raw_component = (model.observation_var / s) * innovation
+        raw_component = _product_ratio(innovation, model.observation_var, s)
         robust_component, weight = _clip_scalar(raw_component, h)
         # Equivalent to (innovation - clipped_component)/C. Splitting off
         # the Kalman correction preserves the h->infinity limit for tiny C.

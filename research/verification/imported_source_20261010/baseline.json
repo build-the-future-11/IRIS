@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_imported_source_identity.py"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 1.3398969580011908,
+  "parent_commit": "83e97b1a1e10c3f6f59895312bc20ef4324a08b6",
+  "source_sha256": "6500f3153d3b9be4008d2771aa871be340f312b38ed00730444c50fe76af53ff"
+}

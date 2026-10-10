@@ -9,13 +9,14 @@
     "FINAL_STATUS_2026-09-30.md",
     "DEVELOPMENT_RECORDS.md"
   ],
-  "engineering_question": "Retain representable Kalman gains after underflowing numerator products",
-  "current_change": "Use the existing product-ratio helper for the gain. Verify both signs against 100-digit Decimal arithmetic, the actual B0/B1 update and the clipped AO correction.",
+  "engineering_question": "Retain representable state corrections when the complete Kalman gain underflows",
+  "current_change": "Build on the gain-numerator repair, combining P*C*innovation/S before final scaling when the gain or correction is subnormal; preserve normal-range multiplication order.",
   "required_session_reads": [
     "RESEARCH_TRUTH.md",
     "FINAL_STATUS_2026-09-30.md",
     "DEVELOPMENT_RECORDS.md",
-    "research/ENGINEERING_NUMERICAL_INTEGRITY_20261010.json"
+    "research/ENGINEERING_NUMERICAL_INTEGRITY_20261010.json",
+    "research/ENGINEERING_STATE_CORRECTIONS_20261010.json"
   ],
   "protected_boundary": "Protected confirmatory experiment IDs 1000-1029 remain closed. Historical development files are unchanged and retain their original source; replay must use the recorded implementation.",
   "protected_evaluation_opened": false,
@@ -38,7 +39,60 @@
       "record": "research/ENGINEERING_NUMERICAL_INTEGRITY_20261010.json",
       "status": "implemented; 123 bounded tests passed; integration pending",
       "scientific_outcomes_created": false
+    },
+    {
+      "date": "2026-10-10",
+      "kind": "engineering_revision",
+      "record": "research/ENGINEERING_STATE_CORRECTIONS_20261010.json",
+      "status": "implemented; 167 constructed correctness tests passed; draft PR 11 integration pending",
+      "scientific_outcomes_created": false
+    },
+    {
+      "date": "2026-10-10",
+      "kind": "source_identity_drift_repair",
+      "record": "research/DEVELOPMENT_IMPORTED_SOURCE_IDENTITY_20261010.md",
+      "result": "four new counterexamples rejected; all 172 tests pass; historical canonical corpus remains unrecovered",
+      "scientific_outcomes_created": false
     }
   ],
-  "history_index_scope": "Index to retained project records and this revision; not a reconstruction or replacement of the complete git/artifact history."
+  "history_index_scope": "Index to retained project records and this revision; not a reconstruction or replacement of the complete git/artifact history.",
+  "engineering_sessions": [
+    {
+      "id": "imported-source-identity-20261010",
+      "status": "VERIFIED_FOR_EXISTING_DRAFT",
+      "parent": "83e97b1a1e10c3f6f59895312bc20ef4324a08b6",
+      "contract": "research/DEVELOPMENT_IMPORTED_SOURCE_IDENTITY_20261010.md",
+      "budget": {
+        "new_fixture_max_observations": 8,
+        "focused_test_commands": 2,
+        "full_test_commands": 1,
+        "command_seconds": 120,
+        "scientific_runs": 0,
+        "paid_compute": 0,
+        "protected_ids": 0
+      },
+      "verification": "research/verification/imported_source_20261010/receipt.json",
+      "local_tests": {
+        "passed": 172,
+        "new_tests": 5,
+        "inherited_tests": 167,
+        "skipped": 0,
+        "raw_receipt": "fixed.json"
+      },
+      "command_seconds": 3.2945692320063245,
+      "baseline_regressions": {
+        "failed": 4,
+        "passed": 1,
+        "raw_receipt": "baseline.json"
+      },
+      "scientific_outcomes_created": false,
+      "independent_review": {
+        "reviewer": "root agent",
+        "scope": "source-only; no repeated execution",
+        "status": "PASS",
+        "limit": "Persistent post-import source drift, not general bytecode attestation or every transient race."
+      }
+    }
+  ],
+  "latest_engineering_session": "imported-source-identity-20261010"
 }

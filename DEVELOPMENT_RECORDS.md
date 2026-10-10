@@ -38,6 +38,28 @@ The additional regressions check independent 100-digit decimal calculations,
 signed extreme clipping and genuine unrepresentable-output rejection. The
 development generator and protected experiment-ID policy are unchanged.
 
+### State-correction underflow follow-up — 10 October 2026
+
+PR #10's binary-scaled gain repair preserves an underflowing gain numerator.
+The gain itself can still underflow before multiplication by the innovation.
+For example, `P=2e-200`, `C=1e-100`, `R=1e100` and innovation
+`1e100` have a representable correction near `2e-300`, although `K` alone is
+below the float64 range. Computing `K * innovation` had silently returned zero
+in B0/B1/B2 and the unclipped B3 limit.
+
+Building on that gain repair, when the gain or correction is subnormal, the
+state update combines `P*C*innovation/S` before its final
+binary scaling. Ordinary normal-range corrections retain the original
+multiplication order. The same helper is used by every baseline, including
+the effective clipped B1 innovation and the AO correction before clipping.
+
+`tests/test_scaled_state_corrections.py` compares all four baseline limits with
+200-digit Decimal arithmetic for both signs and both underflow mechanisms. It
+also checks the robust clipped cases and genuine zero-rounding controls. These
+are arithmetic regressions, not new scientific scenarios or success criteria.
+The source hash changes; earlier retained records still require their exact
+recorded source revision and are not rewritten.
+
 RMSE and MAE use max-error scaling so finite errors such as `1e200` do not
 overflow merely because they are squared or summed. Mismatched array lengths
 are rejected rather than broadcast. Arithmetic outside the representable

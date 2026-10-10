@@ -16,6 +16,19 @@ import numpy as np
 
 PROTECTED_IDS = set(range(1000, 1030))
 DEVELOPMENT_RECORD_SCHEMA = "iris.scalar_baselines.development.v2"
+_IMPORTED_SOURCE_SHA256 = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+
+
+def _checked_source_identity() -> str:
+    """Refuse to label imported functions with subsequently replaced file bytes."""
+    message = "development source identity changed or is unavailable; use a fresh interpreter"
+    try:
+        current = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    except OSError as exc:
+        raise ValueError(message) from exc
+    if current != _IMPORTED_SOURCE_SHA256:
+        raise ValueError(message)
+    return _IMPORTED_SOURCE_SHA256
 
 
 def _finite_real(value: Any, name: str, *, positive: bool = False) -> None:
@@ -155,8 +168,10 @@ def _clip_scalar(value: float, threshold: float) -> tuple[float, float]:
     return math.copysign(threshold, value), weight
 
 
-def _product_ratio(left: float, right: float, denominator: float) -> float:
-    """Evaluate left * right / denominator without losing intermediate scale.
+def _product_ratio(
+    left: float, right: float, denominator: float, *, extra_factor: float = 1.0
+) -> float:
+    """Evaluate left * right * extra_factor / denominator without losing scale.
 
     Callers supply finite values and a positive denominator. The significands
     stay near unity; powers of two are combined exactly before one final scale.
@@ -165,10 +180,11 @@ def _product_ratio(left: float, right: float, denominator: float) -> float:
     left_mantissa, left_exponent = math.frexp(left)
     right_mantissa, right_exponent = math.frexp(right)
     denominator_mantissa, denominator_exponent = math.frexp(denominator)
+    extra_mantissa, extra_exponent = math.frexp(extra_factor)
     try:
         return math.ldexp(
-            left_mantissa * right_mantissa / denominator_mantissa,
-            left_exponent + right_exponent - denominator_exponent,
+            left_mantissa * right_mantissa * extra_mantissa / denominator_mantissa,
+            left_exponent + right_exponent + extra_exponent - denominator_exponent,
         )
     except OverflowError as exc:
         raise ValueError("filter ratio exceeds the finite numeric range") from exc
@@ -193,6 +209,30 @@ def _kalman_terms(
     if not math.isfinite(gain):
         raise ValueError("Kalman gain exceeds the finite numeric range")
     return m_pred, p_pred, innovation, gain, s
+
+
+def _state_correction(
+    p_pred: float,
+    innovation: float,
+    gain: float,
+    innovation_var: float,
+    model: LinearGaussianModel,
+) -> float:
+    """Retain K*innovation even when the intermediate gain underflows.
+
+    Preserve ordinary arithmetic when gain and correction are normal floats.
+    Otherwise combine P*C*innovation/S before scaling into the float64 range.
+    """
+    correction = gain * innovation
+    if (
+        math.isfinite(correction)
+        and abs(gain) >= sys.float_info.min
+        and abs(correction) >= sys.float_info.min
+    ):
+        return correction
+    return _product_ratio(
+        p_pred, model.observation, innovation_var, extra_factor=innovation
+    )
 
 
 def _posterior_variance(
@@ -233,7 +273,7 @@ def filter_sequence(
         effective_innovation = innovation
         if huber_c is not None and weight < 1.0:
             effective_innovation = math.copysign(huber_c * math.sqrt(s), innovation)
-        m = m_pred + gain * effective_innovation
+        m = m_pred + _state_correction(p_pred, effective_innovation, gain, s, model)
         p = _posterior_variance(p_pred, s, model)
         if not math.isfinite(m) or not math.isfinite(z):
             raise ValueError("filter update exceeds the finite numeric range")
@@ -284,7 +324,7 @@ def aorkf_huber_sequence(
     p = model.initial_var
     for t, obs in enumerate(observations):
         m_pred, p_pred, innovation, gain, s = _kalman_terms(m, p, float(obs), model)
-        raw_update = gain * innovation
+        raw_update = _state_correction(p_pred, innovation, gain, s, model)
         if not math.isfinite(raw_update):
             raise ValueError("AO correction exceeds the finite numeric range")
         update, weight = _clip_scalar(raw_update, h)
@@ -351,7 +391,7 @@ def iorkf_huber_sequence(
         # the Kalman correction preserves the h->infinity limit for tiny C.
         m = (
             m_pred
-            + gain * innovation
+            + _state_correction(p_pred, innovation, gain, s, model)
             + (raw_component - robust_component) / model.observation
         )
         p = _posterior_variance(p_pred, s, model)
@@ -400,6 +440,7 @@ def run_development(
     config: RunConfig, model: LinearGaussianModel | None = None
 ) -> dict[str, Any]:
     config.validate()
+    implementation_sha256 = _checked_source_identity()
     model = model or LinearGaussianModel()
     data = generate_sequence(config, model)
     b0 = filter_sequence(data["observation"], model)
@@ -413,7 +454,7 @@ def run_development(
         "B3_IO_robkf_huber": b3,
     }
     trajectories = {key: value.tolist() for key, value in data.items()}
-    return {
+    result = {
         "schema": DEVELOPMENT_RECORD_SCHEMA,
         "evidence_role": "DEVELOPMENT_ONLY",
         "protected_confirmatory_ids": "1000-1029 CLOSED",
@@ -422,9 +463,7 @@ def run_development(
         "seed": _seed(config.experiment_id),
         "generator": {
             "name": "iris_development_scalar_v1",
-            "implementation_sha256": hashlib.sha256(
-                Path(__file__).read_bytes()
-            ).hexdigest(),
+            "implementation_sha256": implementation_sha256,
             "config_sha256": _digest(
                 {"config": asdict(config), "model": asdict(model)}
             ),
@@ -464,6 +503,8 @@ def run_development(
             ),
         },
     }
+    _checked_source_identity()
+    return result
 
 
 def write_result(result: dict[str, Any], path: str) -> None:
@@ -506,7 +547,7 @@ def verify_development_record(record: dict[str, Any]) -> dict[str, Any]:
     model.validate()
     if (
         record.get("generator", {}).get("implementation_sha256")
-        != hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+        != _checked_source_identity()
     ):
         raise ValueError("development record implementation identity differs")
     expected = run_development(config, model)

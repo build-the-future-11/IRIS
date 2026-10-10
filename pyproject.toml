@@ -17,4 +17,4 @@ testpaths = ["tests"]
 pythonpath = ["."]
 
 [tool.setuptools]
-py-modules = ["iris_baselines", "run_dev_baselines"]
+py-modules = ["iris_baselines", "run_dev_baselines", "verify_dev_record"]

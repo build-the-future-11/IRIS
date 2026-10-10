@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "project": "IRIS",
+  "updated_utc": "2026-10-10",
+  "current_phase": "ENGINEERING_DEVELOPMENT_REVIEW",
+  "scientific_disposition": "PROTOCOL_BLOCKED_ON_CANONICAL_RAW_TRAJECTORY_PROVENANCE; retained mixed/negative result",
+  "scientific_scope_authority": [
+    "RESEARCH_TRUTH.md",
+    "FINAL_STATUS_2026-09-30.md",
+    "DEVELOPMENT_RECORDS.md"
+  ],
+  "engineering_question": "Retain representable Kalman gains after underflowing numerator products",
+  "current_change": "Use the existing product-ratio helper for the gain. Verify both signs against 100-digit Decimal arithmetic, the actual B0/B1 update and the clipped AO correction.",
+  "required_session_reads": [
+    "RESEARCH_TRUTH.md",
+    "FINAL_STATUS_2026-09-30.md",
+    "DEVELOPMENT_RECORDS.md",
+    "research/ENGINEERING_NUMERICAL_INTEGRITY_20261010.json"
+  ],
+  "protected_boundary": "Protected confirmatory experiment IDs 1000-1029 remain closed. Historical development files are unchanged and retain their original source; replay must use the recorded implementation.",
+  "protected_evaluation_opened": false,
+  "scientific_runs_this_revision": 0,
+  "research_complete": false,
+  "execution_budget": {
+    "scope": "bounded constructed regressions and existing correctness tests only",
+    "paid_compute": false,
+    "training_campaigns": 0,
+    "protected_runs": 0
+  },
+  "pending_gates": [
+    "Independent review and GitHub integration.",
+    "Scientific hypothesis/specification/methodology/freeze/evidence/release gates remain governed by the retained study contracts."
+  ],
+  "history": [
+    {
+      "date": "2026-10-10",
+      "kind": "engineering_revision",
+      "record": "research/ENGINEERING_NUMERICAL_INTEGRITY_20261010.json",
+      "status": "implemented; 123 bounded tests passed; integration pending",
+      "scientific_outcomes_created": false
+    }
+  ],
+  "history_index_scope": "Index to retained project records and this revision; not a reconstruction or replacement of the complete git/artifact history."
+}

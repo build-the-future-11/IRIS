@@ -189,7 +189,7 @@ def _kalman_terms(
         or s <= 0
     ):
         raise ValueError("Kalman prediction exceeds the finite numeric range")
-    gain = p_pred * model.observation / s
+    gain = _product_ratio(p_pred, model.observation, s)
     if not math.isfinite(gain):
         raise ValueError("Kalman gain exceeds the finite numeric range")
     return m_pred, p_pred, innovation, gain, s

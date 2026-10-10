@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-10",
+  "kind": "ENGINEERING_CORRECTNESS_REVISION",
+  "repository": "build-the-future-11/IRIS",
+  "parent_commit": "beb6648da764bf580aa9e1d23562fb28de4c59cc",
+  "existing_draft_pr": 11,
+  "title": "Retain representable state corrections when the complete Kalman gain underflows",
+  "observation": "P=2e-200, C=1e-100, R=1e100 and innovation=1e100 have a representable state correction near 2e-300, while the complete gain is below float64 range. Parent source returns zero in all four unclipped baseline paths.",
+  "implemented_change": "Build on the gain-numerator repair, combining P*C*innovation/S before final scaling when the gain or correction is subnormal; preserve normal-range multiplication order.",
+  "evidence": {
+    "new_tests": 44,
+    "parent_new_tests_failed": 16,
+    "parent_control_tests_passed": 28,
+    "post_fix_suite_tests_passed": 167,
+    "command": "python -m pytest -q --tb=short",
+    "reference": "200-digit Decimal arithmetic with exact binary-float inputs",
+    "initial_parent": "0135c80eb751ea5eabfd1f048e33d0fc30d76c4a",
+    "initial_new_tests_failed": 32,
+    "initial_control_tests_passed": 8,
+    "concurrent_base_reconciliation": "Preserved beb6648 gain-numerator repair, tests, AGENTS and canonical research state; retained history unchanged.",
+    "ordinary_equivalence": "20 baseline/scenario outputs, all raw arrays and metrics, exactly matched initial parent on five existing constructed development scenarios at ID41 length32; current-source in-memory records verified.",
+    "static_checks": "Ruff E/F/I and git diff --check passed"
+  },
+  "changed_python_sha256": {
+    "iris_baselines.py": "6500f3153d3b9be4008d2771aa871be340f312b38ed00730444c50fe76af53ff",
+    "tests/test_scaled_state_corrections.py": "9a12c3f245b2fda2a1fb49ad75028dd5c4c0129d2a4f2954094548615e3312cb"
+  },
+  "scientific_runs": 0,
+  "scientific_result_changed": false,
+  "scientific_disposition": "PROTOCOL_BLOCKED_ON_CANONICAL_RAW_TRAJECTORY_PROVENANCE; retained mixed/negative result",
+  "protected_boundary": "Protected confirmatory experiment IDs 1000-1029 remain closed. Historical development files are unchanged and retain their original source; replay must use the recorded implementation.",
+  "research_complete": false,
+  "independent_review": "pending",
+  "integration": "draft PR11; not merged"
+}

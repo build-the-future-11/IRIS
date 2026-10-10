@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "project": "IRIS",
+  "updated_utc": "2026-10-10",
+  "current_phase": "ENGINEERING_DEVELOPMENT_REVIEW",
+  "scientific_disposition": "PROTOCOL_BLOCKED_ON_CANONICAL_RAW_TRAJECTORY_PROVENANCE; retained mixed/negative result",
+  "scientific_scope_authority": [
+    "RESEARCH_TRUTH.md",
+    "FINAL_STATUS_2026-09-30.md",
+    "DEVELOPMENT_RECORDS.md"
+  ],
+  "engineering_question": "Retain representable state corrections when the complete Kalman gain underflows",
+  "current_change": "Build on the gain-numerator repair, combining P*C*innovation/S before final scaling when the gain or correction is subnormal; preserve normal-range multiplication order.",
+  "required_session_reads": [
+    "RESEARCH_TRUTH.md",
+    "FINAL_STATUS_2026-09-30.md",
+    "DEVELOPMENT_RECORDS.md",
+    "research/ENGINEERING_NUMERICAL_INTEGRITY_20261010.json",
+    "research/ENGINEERING_STATE_CORRECTIONS_20261010.json"
+  ],
+  "protected_boundary": "Protected confirmatory experiment IDs 1000-1029 remain closed. Historical development files are unchanged and retain their original source; replay must use the recorded implementation.",
+  "protected_evaluation_opened": false,
+  "scientific_runs_this_revision": 0,
+  "research_complete": false,
+  "execution_budget": {
+    "scope": "bounded constructed regressions and existing correctness tests only",
+    "paid_compute": false,
+    "training_campaigns": 0,
+    "protected_runs": 0
+  },
+  "pending_gates": [
+    "Independent review and GitHub integration.",
+    "Scientific hypothesis/specification/methodology/freeze/evidence/release gates remain governed by the retained study contracts."
+  ],
+  "history": [
+    {
+      "date": "2026-10-10",
+      "kind": "engineering_revision",
+      "record": "research/ENGINEERING_NUMERICAL_INTEGRITY_20261010.json",
+      "status": "implemented; 123 bounded tests passed; integration pending",
+      "scientific_outcomes_created": false
+    },
+    {
+      "date": "2026-10-10",
+      "kind": "engineering_revision",
+      "record": "research/ENGINEERING_STATE_CORRECTIONS_20261010.json",
+      "status": "implemented; 167 constructed correctness tests passed; draft PR 11 integration pending",
+      "scientific_outcomes_created": false
+    }
+  ],
+  "history_index_scope": "Index to retained project records and this revision; not a reconstruction or replacement of the complete git/artifact history."
+}

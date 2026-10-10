@@ -155,8 +155,10 @@ def _clip_scalar(value: float, threshold: float) -> tuple[float, float]:
     return math.copysign(threshold, value), weight
 
 
-def _product_ratio(left: float, right: float, denominator: float) -> float:
-    """Evaluate left * right / denominator without losing intermediate scale.
+def _product_ratio(
+    left: float, right: float, denominator: float, *, extra_factor: float = 1.0
+) -> float:
+    """Evaluate left * right * extra_factor / denominator without losing scale.
 
     Callers supply finite values and a positive denominator. The significands
     stay near unity; powers of two are combined exactly before one final scale.
@@ -165,10 +167,11 @@ def _product_ratio(left: float, right: float, denominator: float) -> float:
     left_mantissa, left_exponent = math.frexp(left)
     right_mantissa, right_exponent = math.frexp(right)
     denominator_mantissa, denominator_exponent = math.frexp(denominator)
+    extra_mantissa, extra_exponent = math.frexp(extra_factor)
     try:
         return math.ldexp(
-            left_mantissa * right_mantissa / denominator_mantissa,
-            left_exponent + right_exponent - denominator_exponent,
+            left_mantissa * right_mantissa * extra_mantissa / denominator_mantissa,
+            left_exponent + right_exponent + extra_exponent - denominator_exponent,
         )
     except OverflowError as exc:
         raise ValueError("filter ratio exceeds the finite numeric range") from exc
@@ -189,10 +192,34 @@ def _kalman_terms(
         or s <= 0
     ):
         raise ValueError("Kalman prediction exceeds the finite numeric range")
-    gain = p_pred * model.observation / s
+    gain = _product_ratio(p_pred, model.observation, s)
     if not math.isfinite(gain):
         raise ValueError("Kalman gain exceeds the finite numeric range")
     return m_pred, p_pred, innovation, gain, s
+
+
+def _state_correction(
+    p_pred: float,
+    innovation: float,
+    gain: float,
+    innovation_var: float,
+    model: LinearGaussianModel,
+) -> float:
+    """Retain K*innovation even when the intermediate gain underflows.
+
+    Preserve ordinary arithmetic when gain and correction are normal floats.
+    Otherwise combine P*C*innovation/S before scaling into the float64 range.
+    """
+    correction = gain * innovation
+    if (
+        math.isfinite(correction)
+        and abs(gain) >= sys.float_info.min
+        and abs(correction) >= sys.float_info.min
+    ):
+        return correction
+    return _product_ratio(
+        p_pred, model.observation, innovation_var, extra_factor=innovation
+    )
 
 
 def _posterior_variance(
@@ -233,7 +260,7 @@ def filter_sequence(
         effective_innovation = innovation
         if huber_c is not None and weight < 1.0:
             effective_innovation = math.copysign(huber_c * math.sqrt(s), innovation)
-        m = m_pred + gain * effective_innovation
+        m = m_pred + _state_correction(p_pred, effective_innovation, gain, s, model)
         p = _posterior_variance(p_pred, s, model)
         if not math.isfinite(m) or not math.isfinite(z):
             raise ValueError("filter update exceeds the finite numeric range")
@@ -284,7 +311,7 @@ def aorkf_huber_sequence(
     p = model.initial_var
     for t, obs in enumerate(observations):
         m_pred, p_pred, innovation, gain, s = _kalman_terms(m, p, float(obs), model)
-        raw_update = gain * innovation
+        raw_update = _state_correction(p_pred, innovation, gain, s, model)
         if not math.isfinite(raw_update):
             raise ValueError("AO correction exceeds the finite numeric range")
         update, weight = _clip_scalar(raw_update, h)
@@ -351,7 +378,7 @@ def iorkf_huber_sequence(
         # the Kalman correction preserves the h->infinity limit for tiny C.
         m = (
             m_pred
-            + gain * innovation
+            + _state_correction(p_pred, innovation, gain, s, model)
             + (raw_component - robust_component) / model.observation
         )
         p = _posterior_variance(p_pred, s, model)

@@ -87,3 +87,35 @@ matrix at development ID 41 and length 32. They are engineering smoke records,
 with all baseline outcomes retained. No hypothesis selection, statistical
 victory margin, confirmatory execution or architecture-superiority claim is
 derived from them.
+
+## 22 October 2026 integration of the strict replay parser
+
+The following historical appendix is retained verbatim from PR #9 head
+`4dd3aa70633c88a7e8aa2e2fe56bc4806538daa8`. Its 113-test count and statement that
+the scientific implementation was unchanged refer to that earlier branch only.
+The integrated implementation retains PR #11's later numerical and source-identity
+repairs. Its source hash differs from the original development records; those
+records still require their recorded original source and are not rewritten.
+
+## 10 October 2026 follow-up: strict replay input
+
+The replay CLI now rejects duplicate object keys at any depth, nonstandard
+NaN/Infinity constants, exponent overflow such as `1e999`, and a non-object
+record before replay begins. This prevents a JSON parser's last-key-wins rule
+from selecting one of two conflicting configuration or experiment identities.
+The success receipt includes the SHA-256 of the exact byte snapshot parsed.
+Inputs remain read-only and the scientific `iris_baselines.py` implementation is
+unchanged, so its five source-bound development records still replay exactly.
+
+Seven new CLI cases failed before the correction; all 113 repository tests now
+pass locally. The five retained scenario files were separately verified through
+the actual CLI, each reporting its original input hash. Duplicate protected IDs
+are rejected before replay; IDs 1000–1029 remain closed. This is parsing and
+traceability validation, not a new filter result or canonical-provenance repair.
+
+The integration combines the exact strict CLI and seven original CLI regressions
+with the exact PR #11 core and its 172 existing cases. One predeclared local
+correctness command passed all 179 cases with warnings treated as errors; source
+and evidence bytes remained unchanged. The local budget is closed. The unchanged
+hosted workflow must pass on the new integration head before merge. See
+`research/GITHUB_INTEGRATION_REVIEW_20261022.md` for ancestry, receipts and limits.

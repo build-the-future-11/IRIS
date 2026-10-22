@@ -1,22 +1,24 @@
 {
   "schema_version": 1,
   "project": "IRIS",
-  "updated_utc": "2026-10-10",
-  "current_phase": "ENGINEERING_DEVELOPMENT_REVIEW",
+  "updated_utc": "2026-10-22",
+  "current_phase": "ENGINEERING_INTEGRATION_VERIFIED_PENDING_HOSTED_CI",
   "scientific_disposition": "PROTOCOL_BLOCKED_ON_CANONICAL_RAW_TRAJECTORY_PROVENANCE; retained mixed/negative result",
   "scientific_scope_authority": [
     "RESEARCH_TRUTH.md",
     "FINAL_STATUS_2026-09-30.md",
     "DEVELOPMENT_RECORDS.md"
   ],
-  "engineering_question": "Retain representable state corrections when the complete Kalman gain underflows",
-  "current_change": "Build on the gain-numerator repair, combining P*C*innovation/S before final scaling when the gain or correction is subnormal; preserve normal-range multiplication order.",
+  "engineering_question": "Integrate the strict replay parser with the reviewed extreme-range and source-identity repairs",
+  "current_change": "Exact PR11 core, exact PR9 strict CLI and seven regressions, and preservation of both branch histories; no numerical algorithm or scientific evidence edits.",
   "required_session_reads": [
     "RESEARCH_TRUTH.md",
     "FINAL_STATUS_2026-09-30.md",
     "DEVELOPMENT_RECORDS.md",
     "research/ENGINEERING_NUMERICAL_INTEGRITY_20261010.json",
-    "research/ENGINEERING_STATE_CORRECTIONS_20261010.json"
+    "research/ENGINEERING_STATE_CORRECTIONS_20261010.json",
+    "research/GITHUB_INTEGRATION_REVIEW_20261022.md",
+    "research/ENGINEERING_INTEGRATION_CONTRACT_20261022.md"
   ],
   "protected_boundary": "Protected confirmatory experiment IDs 1000-1029 remain closed. Historical development files are unchanged and retain their original source; replay must use the recorded implementation.",
   "protected_evaluation_opened": false,
@@ -29,8 +31,9 @@
     "protected_runs": 0
   },
   "pending_gates": [
-    "Independent review and GitHub integration.",
-    "Scientific hypothesis/specification/methodology/freeze/evidence/release gates remain governed by the retained study contracts."
+    "Publish a two-parent integration commit after retargeting PR11 to main; require the unchanged IRIS research CI on that exact new head before merge.",
+    "Independent root review and GitHub integration of PR9, PR10 and PR11.",
+    "Canonical historical raw-trajectory provenance remains unresolved; protected IDs1000–1029 remain closed. Scientific gates remain governed by the retained study contracts."
   ],
   "history": [
     {
@@ -52,6 +55,13 @@
       "kind": "source_identity_drift_repair",
       "record": "research/DEVELOPMENT_IMPORTED_SOURCE_IDENTITY_20261010.md",
       "result": "four new counterexamples rejected; all 172 tests pass; historical canonical corpus remains unrecovered",
+      "scientific_outcomes_created": false
+    },
+    {
+      "date": "2026-10-22",
+      "kind": "github_branch_integration_review",
+      "record": "research/GITHUB_INTEGRATION_REVIEW_20261022.md",
+      "status": "Local integration correctness passed all179 existing cases; exact-head hosted verification and GitHub merge pending.",
       "scientific_outcomes_created": false
     }
   ],
@@ -92,7 +102,45 @@
         "status": "PASS",
         "limit": "Persistent post-import source drift, not general bytecode attestation or every transient race."
       }
+    },
+    {
+      "id": "github-branch-integration-20261022",
+      "status": "LOCAL_BUDGET_CLOSED_HOSTED_GATE_PENDING",
+      "parents": [
+        "d37a2fe5c240d06fdf020caac37b839258827411",
+        "4dd3aa70633c88a7e8aa2e2fe56bc4806538daa8"
+      ],
+      "included_prs": [
+        9,
+        10,
+        11
+      ],
+      "contract": "research/ENGINEERING_INTEGRATION_CONTRACT_20261022.md",
+      "verification": "research/integration_20261022/local_test_receipt.json",
+      "source_review": "Full numerical/filter/replay source and all179 regression cases; pinned scalar RobKF equations; all40 source leaves verified by Git blob and mode.",
+      "budget": {
+        "full_test_commands": 1,
+        "command_seconds": 120,
+        "scientific_runs": 0,
+        "paid_compute": 0,
+        "protected_runs": 0,
+        "new_fixtures": 0
+      },
+      "local_tests": {
+        "passed": 179,
+        "failed": 0,
+        "skipped": 0,
+        "elapsed_seconds": 0.6172168709963444,
+        "pytest_reported_seconds": 0.34,
+        "source_files_unchanged": true
+      },
+      "scientific_outcomes_created": false,
+      "limits": [
+        "Historical records remain source-bound to their original implementation; no historical replay was attempted with the changed core.",
+        "Imported-source checks detect persistent file drift, not general bytecode attestation or every transient race.",
+        "No canonical-provenance repair, B4/B5 implementation, protected evaluation or superiority claim."
+      ]
     }
   ],
-  "latest_engineering_session": "imported-source-identity-20261010"
+  "latest_engineering_session": "github-branch-integration-20261022"
 }

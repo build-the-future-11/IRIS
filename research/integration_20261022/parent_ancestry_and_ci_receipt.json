@@ -1,0 +1,631 @@
+{
+  "schema_version": 1,
+  "repository": "build-the-future-11/IRIS",
+  "observed_utc": "2026-10-22 12:15:02 UTC",
+  "heads": {
+    "main": "2dbc623edbaf059643974d1c1fa352c438978954",
+    "pr9": "4dd3aa70633c88a7e8aa2e2fe56bc4806538daa8",
+    "pr10": "beb6648da764bf580aa9e1d23562fb28de4c59cc",
+    "pr11": "d37a2fe5c240d06fdf020caac37b839258827411"
+  },
+  "actual_trees": {
+    "pr9": "a4186ce6a0255d3b4b8876b4047fb9a1f6e5c92a",
+    "pr11": "5995674658792eb4cbe9ed4ed9bdf63b09862314"
+  },
+  "tree_identity_source": "git/commits/<sha>.tree.sha, not normalized git/trees requested ref",
+  "comparisons": {
+    "iris_9to11": {
+      "repository_full_name": "build-the-future-11/IRIS",
+      "base": "4dd3aa70633c88a7e8aa2e2fe56bc4806538daa8",
+      "head": "d37a2fe5c240d06fdf020caac37b839258827411",
+      "status": "diverged",
+      "ahead_by": 5,
+      "behind_by": 1,
+      "total_commits": 5,
+      "too_large": null,
+      "base_commit": {
+        "sha": "4dd3aa70633c88a7e8aa2e2fe56bc4806538daa8",
+        "url": "https://api.github.com/repos/build-the-future-11/IRIS/commits/4dd3aa70633c88a7e8aa2e2fe56bc4806538daa8",
+        "html_url": "https://github.com/build-the-future-11/IRIS/commit/4dd3aa70633c88a7e8aa2e2fe56bc4806538daa8"
+      },
+      "merge_base_commit": {
+        "sha": "5943f7b7c135bd83e22d5cc1df5ba0a07c955e9a",
+        "url": "https://api.github.com/repos/build-the-future-11/IRIS/commits/5943f7b7c135bd83e22d5cc1df5ba0a07c955e9a",
+        "html_url": "https://github.com/build-the-future-11/IRIS/commit/5943f7b7c135bd83e22d5cc1df5ba0a07c955e9a"
+      },
+      "files": [
+        {
+          "filename": "AGENTS.md",
+          "status": "added",
+          "additions": 5,
+          "deletions": 0,
+          "changes": 5,
+          "previous_filename": null
+        },
+        {
+          "filename": "DEVELOPMENT_RECORDS.md",
+          "status": "modified",
+          "additions": 41,
+          "deletions": 5,
+          "changes": 46,
+          "previous_filename": null
+        },
+        {
+          "filename": "RESEARCH_STATE.json",
+          "status": "added",
+          "additions": 98,
+          "deletions": 0,
+          "changes": 98,
+          "previous_filename": null
+        },
+        {
+          "filename": "iris_baselines.py",
+          "status": "modified",
+          "additions": 78,
+          "deletions": 14,
+          "changes": 92,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/DEVELOPMENT_IMPORTED_SOURCE_IDENTITY_20261010.md",
+          "status": "added",
+          "additions": 49,
+          "deletions": 0,
+          "changes": 49,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/ENGINEERING_NUMERICAL_INTEGRITY_20261010.json",
+          "status": "added",
+          "additions": 42,
+          "deletions": 0,
+          "changes": 42,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/ENGINEERING_STATE_CORRECTIONS_20261010.json",
+          "status": "added",
+          "additions": 36,
+          "deletions": 0,
+          "changes": 36,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/baseline.json",
+          "status": "added",
+          "additions": 13,
+          "deletions": 0,
+          "changes": 13,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/baseline_stderr.txt",
+          "status": "added",
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/baseline_stdout.txt",
+          "status": "added",
+          "additions": 101,
+          "deletions": 0,
+          "changes": 101,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/fixed.json",
+          "status": "added",
+          "additions": 17,
+          "deletions": 0,
+          "changes": 17,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/fixed_stderr.txt",
+          "status": "added",
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/fixed_stdout.txt",
+          "status": "added",
+          "additions": 4,
+          "deletions": 0,
+          "changes": 4,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/receipt.json",
+          "status": "added",
+          "additions": 62,
+          "deletions": 0,
+          "changes": 62,
+          "previous_filename": null
+        },
+        {
+          "filename": "tests/test_extreme_range_filters.py",
+          "status": "added",
+          "additions": 72,
+          "deletions": 0,
+          "changes": 72,
+          "previous_filename": null
+        },
+        {
+          "filename": "tests/test_gain_underflow.py",
+          "status": "added",
+          "additions": 47,
+          "deletions": 0,
+          "changes": 47,
+          "previous_filename": null
+        },
+        {
+          "filename": "tests/test_imported_source_identity.py",
+          "status": "added",
+          "additions": 93,
+          "deletions": 0,
+          "changes": 93,
+          "previous_filename": null
+        },
+        {
+          "filename": "tests/test_scaled_state_corrections.py",
+          "status": "added",
+          "additions": 109,
+          "deletions": 0,
+          "changes": 109,
+          "previous_filename": null
+        }
+      ]
+    },
+    "iris_10to11": {
+      "repository_full_name": "build-the-future-11/IRIS",
+      "base": "beb6648da764bf580aa9e1d23562fb28de4c59cc",
+      "head": "d37a2fe5c240d06fdf020caac37b839258827411",
+      "status": "ahead",
+      "ahead_by": 3,
+      "behind_by": 0,
+      "total_commits": 3,
+      "too_large": null,
+      "base_commit": {
+        "sha": "beb6648da764bf580aa9e1d23562fb28de4c59cc",
+        "url": "https://api.github.com/repos/build-the-future-11/IRIS/commits/beb6648da764bf580aa9e1d23562fb28de4c59cc",
+        "html_url": "https://github.com/build-the-future-11/IRIS/commit/beb6648da764bf580aa9e1d23562fb28de4c59cc"
+      },
+      "merge_base_commit": {
+        "sha": "beb6648da764bf580aa9e1d23562fb28de4c59cc",
+        "url": "https://api.github.com/repos/build-the-future-11/IRIS/commits/beb6648da764bf580aa9e1d23562fb28de4c59cc",
+        "html_url": "https://github.com/build-the-future-11/IRIS/commit/beb6648da764bf580aa9e1d23562fb28de4c59cc"
+      },
+      "files": [
+        {
+          "filename": "DEVELOPMENT_RECORDS.md",
+          "status": "modified",
+          "additions": 22,
+          "deletions": 0,
+          "changes": 22,
+          "previous_filename": null
+        },
+        {
+          "filename": "RESEARCH_STATE.json",
+          "status": "modified",
+          "additions": 58,
+          "deletions": 4,
+          "changes": 62,
+          "previous_filename": null
+        },
+        {
+          "filename": "iris_baselines.py",
+          "status": "modified",
+          "additions": 53,
+          "deletions": 12,
+          "changes": 65,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/DEVELOPMENT_IMPORTED_SOURCE_IDENTITY_20261010.md",
+          "status": "added",
+          "additions": 49,
+          "deletions": 0,
+          "changes": 49,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/ENGINEERING_STATE_CORRECTIONS_20261010.json",
+          "status": "added",
+          "additions": 36,
+          "deletions": 0,
+          "changes": 36,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/baseline.json",
+          "status": "added",
+          "additions": 13,
+          "deletions": 0,
+          "changes": 13,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/baseline_stderr.txt",
+          "status": "added",
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/baseline_stdout.txt",
+          "status": "added",
+          "additions": 101,
+          "deletions": 0,
+          "changes": 101,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/fixed.json",
+          "status": "added",
+          "additions": 17,
+          "deletions": 0,
+          "changes": 17,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/fixed_stderr.txt",
+          "status": "added",
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/fixed_stdout.txt",
+          "status": "added",
+          "additions": 4,
+          "deletions": 0,
+          "changes": 4,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/receipt.json",
+          "status": "added",
+          "additions": 62,
+          "deletions": 0,
+          "changes": 62,
+          "previous_filename": null
+        },
+        {
+          "filename": "tests/test_imported_source_identity.py",
+          "status": "added",
+          "additions": 93,
+          "deletions": 0,
+          "changes": 93,
+          "previous_filename": null
+        },
+        {
+          "filename": "tests/test_scaled_state_corrections.py",
+          "status": "added",
+          "additions": 109,
+          "deletions": 0,
+          "changes": 109,
+          "previous_filename": null
+        }
+      ]
+    },
+    "iris_main_to11": {
+      "repository_full_name": "build-the-future-11/IRIS",
+      "base": "2dbc623edbaf059643974d1c1fa352c438978954",
+      "head": "d37a2fe5c240d06fdf020caac37b839258827411",
+      "status": "ahead",
+      "ahead_by": 6,
+      "behind_by": 0,
+      "total_commits": 6,
+      "too_large": null,
+      "base_commit": {
+        "sha": "2dbc623edbaf059643974d1c1fa352c438978954",
+        "url": "https://api.github.com/repos/build-the-future-11/IRIS/commits/2dbc623edbaf059643974d1c1fa352c438978954",
+        "html_url": "https://github.com/build-the-future-11/IRIS/commit/2dbc623edbaf059643974d1c1fa352c438978954"
+      },
+      "merge_base_commit": {
+        "sha": "2dbc623edbaf059643974d1c1fa352c438978954",
+        "url": "https://api.github.com/repos/build-the-future-11/IRIS/commits/2dbc623edbaf059643974d1c1fa352c438978954",
+        "html_url": "https://github.com/build-the-future-11/IRIS/commit/2dbc623edbaf059643974d1c1fa352c438978954"
+      },
+      "files": [
+        {
+          "filename": "AGENTS.md",
+          "status": "added",
+          "additions": 5,
+          "deletions": 0,
+          "changes": 5,
+          "previous_filename": null
+        },
+        {
+          "filename": "DEVELOPMENT_RECORDS.md",
+          "status": "added",
+          "additions": 89,
+          "deletions": 0,
+          "changes": 89,
+          "previous_filename": null
+        },
+        {
+          "filename": "RESEARCH_STATE.json",
+          "status": "added",
+          "additions": 98,
+          "deletions": 0,
+          "changes": 98,
+          "previous_filename": null
+        },
+        {
+          "filename": "development/20261010/additive_outlier.json",
+          "status": "added",
+          "additions": 843,
+          "deletions": 0,
+          "changes": 843,
+          "previous_filename": null
+        },
+        {
+          "filename": "development/20261010/clean.json",
+          "status": "added",
+          "additions": 843,
+          "deletions": 0,
+          "changes": 843,
+          "previous_filename": null
+        },
+        {
+          "filename": "development/20261010/false_open.json",
+          "status": "added",
+          "additions": 843,
+          "deletions": 0,
+          "changes": 843,
+          "previous_filename": null
+        },
+        {
+          "filename": "development/20261010/mixed.json",
+          "status": "added",
+          "additions": 843,
+          "deletions": 0,
+          "changes": 843,
+          "previous_filename": null
+        },
+        {
+          "filename": "development/20261010/persistent_shift.json",
+          "status": "added",
+          "additions": 843,
+          "deletions": 0,
+          "changes": 843,
+          "previous_filename": null
+        },
+        {
+          "filename": "iris_baselines.py",
+          "status": "modified",
+          "additions": 310,
+          "deletions": 63,
+          "changes": 373,
+          "previous_filename": null
+        },
+        {
+          "filename": "pyproject.toml",
+          "status": "modified",
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/DEVELOPMENT_IMPORTED_SOURCE_IDENTITY_20261010.md",
+          "status": "added",
+          "additions": 49,
+          "deletions": 0,
+          "changes": 49,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/ENGINEERING_NUMERICAL_INTEGRITY_20261010.json",
+          "status": "added",
+          "additions": 42,
+          "deletions": 0,
+          "changes": 42,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/ENGINEERING_STATE_CORRECTIONS_20261010.json",
+          "status": "added",
+          "additions": 36,
+          "deletions": 0,
+          "changes": 36,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/baseline.json",
+          "status": "added",
+          "additions": 13,
+          "deletions": 0,
+          "changes": 13,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/baseline_stderr.txt",
+          "status": "added",
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/baseline_stdout.txt",
+          "status": "added",
+          "additions": 101,
+          "deletions": 0,
+          "changes": 101,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/fixed.json",
+          "status": "added",
+          "additions": 17,
+          "deletions": 0,
+          "changes": 17,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/fixed_stderr.txt",
+          "status": "added",
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/fixed_stdout.txt",
+          "status": "added",
+          "additions": 4,
+          "deletions": 0,
+          "changes": 4,
+          "previous_filename": null
+        },
+        {
+          "filename": "research/verification/imported_source_20261010/receipt.json",
+          "status": "added",
+          "additions": 62,
+          "deletions": 0,
+          "changes": 62,
+          "previous_filename": null
+        },
+        {
+          "filename": "tests/test_extreme_range_filters.py",
+          "status": "added",
+          "additions": 72,
+          "deletions": 0,
+          "changes": 72,
+          "previous_filename": null
+        },
+        {
+          "filename": "tests/test_gain_underflow.py",
+          "status": "added",
+          "additions": 47,
+          "deletions": 0,
+          "changes": 47,
+          "previous_filename": null
+        },
+        {
+          "filename": "tests/test_imported_source_identity.py",
+          "status": "added",
+          "additions": 93,
+          "deletions": 0,
+          "changes": 93,
+          "previous_filename": null
+        },
+        {
+          "filename": "tests/test_numerics_and_records.py",
+          "status": "added",
+          "additions": 151,
+          "deletions": 0,
+          "changes": 151,
+          "previous_filename": null
+        },
+        {
+          "filename": "tests/test_scaled_state_corrections.py",
+          "status": "added",
+          "additions": 109,
+          "deletions": 0,
+          "changes": 109,
+          "previous_filename": null
+        },
+        {
+          "filename": "verify_dev_record.py",
+          "status": "added",
+          "additions": 25,
+          "deletions": 0,
+          "changes": 25,
+          "previous_filename": null
+        }
+      ]
+    },
+    "iris_base_to9": {
+      "repository_full_name": "build-the-future-11/IRIS",
+      "base": "5943f7b7c135bd83e22d5cc1df5ba0a07c955e9a",
+      "head": "4dd3aa70633c88a7e8aa2e2fe56bc4806538daa8",
+      "status": "ahead",
+      "ahead_by": 1,
+      "behind_by": 0,
+      "total_commits": 1,
+      "too_large": null,
+      "base_commit": {
+        "sha": "5943f7b7c135bd83e22d5cc1df5ba0a07c955e9a",
+        "url": "https://api.github.com/repos/build-the-future-11/IRIS/commits/5943f7b7c135bd83e22d5cc1df5ba0a07c955e9a",
+        "html_url": "https://github.com/build-the-future-11/IRIS/commit/5943f7b7c135bd83e22d5cc1df5ba0a07c955e9a"
+      },
+      "merge_base_commit": {
+        "sha": "5943f7b7c135bd83e22d5cc1df5ba0a07c955e9a",
+        "url": "https://api.github.com/repos/build-the-future-11/IRIS/commits/5943f7b7c135bd83e22d5cc1df5ba0a07c955e9a",
+        "html_url": "https://github.com/build-the-future-11/IRIS/commit/5943f7b7c135bd83e22d5cc1df5ba0a07c955e9a"
+      },
+      "files": [
+        {
+          "filename": "DEVELOPMENT_RECORDS.md",
+          "status": "modified",
+          "additions": 16,
+          "deletions": 0,
+          "changes": 16,
+          "previous_filename": null
+        },
+        {
+          "filename": "tests/test_strict_record_cli.py",
+          "status": "added",
+          "additions": 46,
+          "deletions": 0,
+          "changes": 46,
+          "previous_filename": null
+        },
+        {
+          "filename": "verify_dev_record.py",
+          "status": "modified",
+          "additions": 33,
+          "deletions": 3,
+          "changes": 36,
+          "previous_filename": null
+        }
+      ]
+    }
+  },
+  "review_threads_and_reviews": {
+    "pr9": "empty",
+    "pr10": "empty",
+    "pr11": "empty"
+  },
+  "historical_ci": {
+    "pr9": {
+      "run": 38025780497,
+      "job": 114136205958,
+      "passed": 113,
+      "head": "4dd3aa70633c88a7e8aa2e2fe56bc4806538daa8"
+    },
+    "pr10": {
+      "run": 38025407433,
+      "passed": 123,
+      "head": "beb6648da764bf580aa9e1d23562fb28de4c59cc"
+    },
+    "pr11_previous": {
+      "run": 38025630756,
+      "passed": 167,
+      "head": "83e97b1a1e10c3f6f59895312bc20ef4324a08b6"
+    },
+    "pr11_tip": "No final hosted run; prior commit used skip-ci. Local172-case receipt is historical only. New integration exact-head workflow is required."
+  },
+  "integration": {
+    "first_parent": "d37a2fe5c240d06fdf020caac37b839258827411",
+    "additional_parents": [
+      "4dd3aa70633c88a7e8aa2e2fe56bc4806538daa8"
+    ],
+    "retarget_pr11_to_main_before_push": true,
+    "included_prs": [
+      9,
+      10,
+      11
+    ],
+    "expected_new_cases": 179
+  }
+}

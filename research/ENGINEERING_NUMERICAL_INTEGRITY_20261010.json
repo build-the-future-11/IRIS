@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-10",
+  "kind": "ENGINEERING_CORRECTNESS_REVISION",
+  "repository": "build-the-future-11/IRIS",
+  "parent_commit": "0135c80eb751ea5eabfd1f048e33d0fc30d76c4a",
+  "existing_draft_pr": 10,
+  "title": "Retain representable Kalman gains after underflowing numerator products",
+  "observation": "P=1e-300, C=1e-100 and S=1e-300 yield a representable gain of 1e-100, but the old P*C/S gives zero and loses a unit correction.",
+  "cause": "Kalman gain still used direct multiply-then-divide even though the existing binary-exponent helper protects other filter ratios.",
+  "severity": "incorrect arithmetic, state or evidence admission on valid/ambiguous boundary inputs",
+  "implemented_change": "Use the existing product-ratio helper for the gain. Verify both signs against 100-digit Decimal arithmetic, the actual B0/B1 update and the clipped AO correction.",
+  "predicted_consequence": "New constructed regressions fail on the recorded parent and pass after the repair while the existing bounded suite passes.",
+  "evidence": {
+    "pre_fix_new_tests_failed": 5,
+    "pre_fix_control_tests_passed": 0,
+    "post_fix_suite_tests_passed": 123,
+    "command": "PYTHONPATH=. OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 python -m pytest -q tests",
+    "environment": {
+      "python": "3.12.14",
+      "numpy": "2.3.5",
+      "torch": "2.14.1+cpu",
+      "pytest": "9.1.1",
+      "device": "CPU"
+    },
+    "critical_static_checks": "Ruff E9,F821,F822,F823 passed for all changed Python files",
+    "compilation": "All changed Python sources compiled",
+    "whitespace": "git diff --check passed"
+  },
+  "changed_python_sha256": {
+    "iris_baselines.py": "472a5553c4d595dd842d34f3e4f9f7216006063400505d9bfcdd08b1458e22d7",
+    "tests/test_gain_underflow.py": "3df30550b5a8c3aaa37aa3fb55412ca3e88653bb8cafc8b86077a4bda2dcdce4"
+  },
+  "scientific_runs": 0,
+  "scientific_result_changed": false,
+  "scientific_disposition": "PROTOCOL_BLOCKED_ON_CANONICAL_RAW_TRAJECTORY_PROVENANCE; retained mixed/negative result",
+  "protected_boundary": "Protected confirmatory experiment IDs 1000-1029 remain closed. Historical development files are unchanged and retain their original source; replay must use the recorded implementation.",
+  "research_complete": false,
+  "independent_review": "pending",
+  "integration": "draft pull request; not merged",
+  "release_gate": "Review/integrate the implementation and retain source identities; scientific successors remain separately gated."
+}
